@@ -56,6 +56,38 @@ export async function getPageBlocks(
     cursor = response.has_more ? (response.next_cursor ?? undefined) : undefined
   } while (cursor)
 
+  // For blocks that have children (tables, toggles, etc.), fetch their children
+  async function fetchChildrenForBlock(block: BlockObjectResponse) {
+    if (!block.has_children) return
+
+    const children: BlockObjectResponse[] = []
+    let childCursor: string | undefined = undefined
+
+    do {
+      const params = new URLSearchParams({ page_size: '100' })
+      if (childCursor) params.set('start_cursor', childCursor)
+      const response = await notionFetch<{
+        results: BlockObjectResponse[]
+        has_more: boolean
+        next_cursor: string | null
+      }>(`/blocks/${block.id}/children?${params}`)
+      children.push(...response.results)
+      childCursor = response.has_more ? (response.next_cursor ?? undefined) : undefined
+    } while (childCursor)
+
+    // Recursively fetch grandchildren
+    for (const child of children) {
+      await fetchChildrenForBlock(child)
+    }
+
+    ;(block as any).children = children
+  }
+
+  // Fetch children for each top-level block that has children
+  for (const block of blocks) {
+    if (block.has_children) await fetchChildrenForBlock(block)
+  }
+
   return blocks
 }
 

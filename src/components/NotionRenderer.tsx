@@ -2,6 +2,8 @@ import React from 'react'
 import type {
   BlockObjectResponse,
   RichTextItemResponse,
+  TableRowBlockObjectResponse,
+  TableBlockObjectResponse,
 } from '@notionhq/client/build/src/api-endpoints'
 import { cn } from '#/lib/utils'
 
@@ -197,6 +199,64 @@ function ToDoBlock({ block }: { block: Block }) {
 // Main renderer — groups consecutive list items
 // ---------------------------------------------------------------------------
 
+function TableFromRows({ rows }: { rows: TableRowBlockObjectResponse[] }) {
+  if (!rows.length) return null
+  return (
+    <div className="my-6 overflow-x-auto">
+      <table className="min-w-full table-fixed border-collapse text-sm">
+        <tbody>
+          {rows.map((row) => (
+            <tr key={row.id} className="odd:bg-white even:bg-gray-50">
+              {row.table_row.cells.map((cell, idx) => (
+                <td key={idx} className="border px-3 py-2 align-top text-gray-600">
+                  {renderRichText(cell as RichTextItemResponse[])}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+function TableBlock({ block }: { block: TableBlockObjectResponse }) {
+  if (block.type !== 'table') return null
+  const children: Block[] = (block as any).children ?? []
+  const rows = children.filter((b) => b.type === 'table_row') as TableRowBlockObjectResponse[]
+  const hasColumnHeader = !!block.table?.has_column_header
+  if (!rows.length) return null
+
+  return (
+    <div className="my-6 overflow-x-auto">
+      <table className="min-w-full table-fixed border-collapse text-sm">
+        {hasColumnHeader && rows[0] && (
+          <thead className="bg-gray-50">
+            <tr>
+              {rows[0].table_row.cells.map((cell, i) => (
+                <th key={i} className="border px-3 py-2 text-left font-medium text-gray-700">
+                  {renderRichText(cell as RichTextItemResponse[])}
+                </th>
+              ))}
+            </tr>
+          </thead>
+        )}
+        <tbody>
+          {rows.slice(hasColumnHeader ? 1 : 0).map((row) => (
+            <tr key={row.id} className="odd:bg-white even:bg-gray-50">
+              {row.table_row.cells.map((cell, i) => (
+                <td key={i} className="border px-3 py-2 align-top text-gray-600">
+                  {renderRichText(cell as RichTextItemResponse[])}
+                </td>
+              ))}
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
 export function NotionRenderer({ blocks }: { blocks: Block[] }) {
   const elements: React.ReactNode[] = []
   let i = 0
@@ -219,6 +279,15 @@ export function NotionRenderer({ blocks }: { blocks: Block[] }) {
         group.push(blocks[i++])
       }
       elements.push(<NumberedList key={group[0].id} items={group} />)
+      continue
+    }
+
+    if (block.type === 'table_row') {
+      const group: Block[] = []
+      while (i < blocks.length && blocks[i].type === 'table_row') {
+        group.push(blocks[i++])
+      }
+      elements.push(<TableFromRows key={group[0].id} rows={group} />)
       continue
     }
 
@@ -252,6 +321,9 @@ export function NotionRenderer({ blocks }: { blocks: Block[] }) {
         break
       case 'to_do':
         elements.push(<ToDoBlock key={block.id} block={block} />)
+        break
+      case 'table':
+        elements.push(<TableBlock key={block.id} block={block} />)
         break
       default:
         // unsupported block — skip silently
