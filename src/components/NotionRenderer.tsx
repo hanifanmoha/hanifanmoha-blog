@@ -135,7 +135,7 @@ function QuoteBlock({ block }: { block: Block }) {
 }
 
 function DividerBlock() {
-  return <hr className="my-6 border-none h-px bg-[var(--line)]" />
+  return <hr className="my-6 border-none h-px bg-(--line)" />
 }
 
 function ImageBlock({ block }: { block: Block }) {
@@ -184,7 +184,7 @@ function ToDoBlock({ block }: { block: Block }) {
         type="checkbox"
         checked={block.to_do.checked}
         readOnly
-        className="mt-1 accent-[var(--lagoon)]"
+        className="mt-1 accent-(--lagoon)"
       />
       <span className={cn(block.to_do.checked && 'line-through opacity-50 text-gray-400')}>
         {renderRichText(block.to_do.rich_text)}

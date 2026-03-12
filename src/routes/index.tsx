@@ -87,7 +87,7 @@ function HomePage() {
         </div>
       ) : (
         <div className="space-y-12">
-          {groups.map(([tag, tagPosts], i) => (
+          {groups.map(([tag, tagPosts]) => (
             <section key={tag}>
               <div className="mb-5 flex items-center gap-4">
                 <h2 className="text-lg font-semibold text-gray-900">
