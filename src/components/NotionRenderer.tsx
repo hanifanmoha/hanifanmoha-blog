@@ -18,7 +18,7 @@ function renderRichText(richText: RichTextItemResponse[]): React.ReactNode {
 
     if (code) {
       return (
-        <code key={i} className="font-mono text-[0.88em]">
+        <code key={i} className="font-mono text-[0.88em] bg-gray-100 !text-pink-600 !px-1.5 !py-0.5 rounded">
           {text}
         </code>
       )
@@ -283,9 +283,9 @@ export function NotionRenderer({ blocks }: { blocks: Block[] }) {
     }
 
     if (block.type === 'table_row') {
-      const group: Block[] = []
+      const group: TableRowBlockObjectResponse[] = []
       while (i < blocks.length && blocks[i].type === 'table_row') {
-        group.push(blocks[i++])
+        group.push(blocks[i++] as TableRowBlockObjectResponse)
       }
       elements.push(<TableFromRows key={group[0].id} rows={group} />)
       continue

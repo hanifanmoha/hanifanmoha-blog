@@ -27,6 +27,13 @@ export const Route = createFileRoute('/posts/$id')({
       blocks,
     }
   },
+  head: ({ loaderData }) => ({
+    meta: [
+      {
+        title: `${loaderData?.title || 'Post'} | @hanifanmoha`,
+      },
+    ],
+  }),
   component: PostPage,
 })
 
