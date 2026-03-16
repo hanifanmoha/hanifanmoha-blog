@@ -1,4 +1,4 @@
-import { createFileRoute, Link } from '@tanstack/react-router'
+import { createFileRoute, Link, redirect } from '@tanstack/react-router'
 import {
   getPage,
   getPageBlocks,
@@ -17,6 +17,13 @@ import { Separator } from '#/components/ui/separator'
 
 export const Route = createFileRoute('/posts/$id')({
   loader: async ({ params }) => {
+    // Redirect raw 32-char IDs to hyphenated UUID format
+    if (!params.id.includes('-') && params.id.length === 32) {
+      const id = params.id
+      const hyphenated = `${id.slice(0, 8)}-${id.slice(8, 12)}-${id.slice(12, 16)}-${id.slice(16, 20)}-${id.slice(20)}`
+      throw redirect({ to: '/posts/$id', params: { id: hyphenated } })
+    }
+
     const [page, blocks] = await Promise.all([
       getPage(params.id),
       getPageBlocks(params.id),
@@ -43,7 +50,6 @@ function PostPage() {
   const formattedDate = new Date(createdAt).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
-    day: 'numeric',
   })
 
   return (

@@ -111,10 +111,35 @@ function NumberedList({ items }: { items: Block[] }) {
   )
 }
 
+function MermaidCodeBlock({ text }: { text: string }) {
+  const encoded = btoa(unescape(encodeURIComponent(text)))
+  const src = `https://mermaid.ink/svg/${encoded}`
+  return (
+    <div className="island-shell my-4 rounded-xl p-4">
+      <p className="island-kicker mb-2">mermaid</p>
+      <div className="flex justify-center">
+        <img src={src} alt="Mermaid diagram" className="max-w-2/3" />
+      </div>
+      <details className="mt-3 group">
+        <summary className="flex cursor-pointer list-none items-center gap-2 text-xs text-gray-400 hover:text-gray-600">
+          <span className="select-none transition-transform duration-200 group-open:rotate-90">▶</span>
+          View source
+        </summary>
+        <pre className="mt-2 overflow-x-auto text-sm leading-relaxed text-gray-800">
+          <code>{text}</code>
+        </pre>
+      </details>
+    </div>
+  )
+}
+
 function CodeBlock({ block }: { block: Block }) {
   if (block.type !== 'code') return null
   const text = block.code.rich_text.map((t) => t.plain_text).join('')
   const lang = block.code.language ?? ''
+
+  if (lang === 'mermaid') return <MermaidCodeBlock text={text} />
+
   return (
     <div className="island-shell my-4 overflow-x-auto rounded-xl p-4">
       {lang && (

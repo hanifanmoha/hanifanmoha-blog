@@ -27,7 +27,6 @@ function PostCard({ post }: { post: BlogPost }) {
   const formattedDate = new Date(post.createdAt).toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
-    day: 'numeric',
   })
 
   return (
