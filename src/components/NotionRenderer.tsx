@@ -11,6 +11,22 @@ import { cn } from '#/lib/utils'
 // Rich text
 // ---------------------------------------------------------------------------
 
+// Notion page URLs end with a 32-char hex ID, e.g.:
+//   https://www.notion.so/Some-Title-3250b84b1db4801da492dfef632ee42f
+// Rewrite those to internal post routes.
+function resolveHref(url: string): { href: string; internal: boolean; name?: string } {
+  const notionPagePattern = /^https?:\/\/(?:www\.)?notion\.so\/(?:([^/]+?)-)?([0-9a-f]{32})$/i
+  const match = url.match(notionPagePattern)
+  if (match) {
+    const slug = match[1]
+    const raw = match[2]
+    const uuid = `${raw.slice(0, 8)}-${raw.slice(8, 12)}-${raw.slice(12, 16)}-${raw.slice(16, 20)}-${raw.slice(20)}`
+    const name = slug ? slug.replace(/-/g, ' ') : 'Link'
+    return { href: `/posts/${uuid}`, internal: true, name }
+  }
+  return { href: url, internal: false }
+}
+
 function renderRichText(richText: RichTextItemResponse[]): React.ReactNode {
   return richText.map((item, i) => {
     const { bold, italic, strikethrough, underline, code } = item.annotations
@@ -24,7 +40,7 @@ function renderRichText(richText: RichTextItemResponse[]): React.ReactNode {
       )
     }
 
-    const href =
+    const rawHref =
       item.type === 'text' && item.text.link ? item.text.link.url : undefined
 
     let node: React.ReactNode = text
@@ -32,12 +48,15 @@ function renderRichText(richText: RichTextItemResponse[]): React.ReactNode {
     if (italic) node = <em key={i}>{node}</em>
     if (strikethrough) node = <s key={i}>{node}</s>
     if (underline) node = <u key={i}>{node}</u>
-    if (href)
-      node = (
-        <a key={i} href={href} target="_blank" rel="noopener noreferrer">
-          {node}
-        </a>
+    if (rawHref) {
+      const { href, internal, name } = resolveHref(rawHref)
+      const label = internal ? (name ?? 'Link') : node
+      node = internal ? (
+        <a key={i} href={href} className="text-blue-600 underline hover:text-blue-800">{label}</a>
+      ) : (
+        <a key={i} href={href} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">{label}</a>
       )
+    }
 
     return <React.Fragment key={i}>{node}</React.Fragment>
   })
