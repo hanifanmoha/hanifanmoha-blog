@@ -76,7 +76,7 @@ function HomePage() {
           @hanifanmoha
         </h1>
         <p className="mt-3 text-gray-500">
-          {posts.length} published article{posts.length !== 1 ? 's' : ''}
+          New articles every week.
         </p>
       </section>
 

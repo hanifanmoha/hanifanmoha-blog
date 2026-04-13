@@ -234,6 +234,18 @@ function CalloutBlock({ block }: { block: Block }) {
   )
 }
 
+function LinkPreviewBlock({ block }: { block: Block }) {
+  if (block.type !== 'link_preview') {
+    return null
+  }
+  const url = block.link_preview.url
+  return (
+    <a href={url} target="_blank" rel="noopener noreferrer" className="text-blue-600 underline hover:text-blue-800">
+      {url}
+    </a>
+  )
+}
+
 function ToDoBlock({ block }: { block: Block }) {
   if (block.type !== 'to_do') return null
   return (
@@ -392,6 +404,9 @@ export function NotionRenderer({ blocks }: { blocks: Block[] }) {
         break
       case 'callout':
         elements.push(<CalloutBlock key={block.id} block={block} />)
+        break
+      case 'link_preview':
+        elements.push(<LinkPreviewBlock key={block.id} block={block} />)
         break
       case 'to_do':
         elements.push(<ToDoBlock key={block.id} block={block} />)
