@@ -6,6 +6,8 @@ import type {
   TableBlockObjectResponse,
 } from '@notionhq/client/build/src/api-endpoints'
 import { cn } from '#/lib/utils'
+import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter'
+import { oneLight } from 'react-syntax-highlighter/dist/esm/styles/prism'
 
 // ---------------------------------------------------------------------------
 // Rich text
@@ -144,9 +146,15 @@ function MermaidCodeBlock({ text }: { text: string }) {
           <span className="select-none transition-transform duration-200 group-open:rotate-90">▶</span>
           View source
         </summary>
-        <pre className="mt-2 overflow-x-auto text-sm leading-relaxed text-gray-800">
-          <code>{text}</code>
-        </pre>
+        <div className="mt-2 overflow-x-auto">
+          <SyntaxHighlighter
+            language="mermaid"
+            style={oneLight}
+            customStyle={{ margin: 0, background: 'transparent', fontSize: '0.875rem', lineHeight: '1.25rem' }}
+          >
+            {text}
+          </SyntaxHighlighter>
+        </div>
       </details>
     </div>
   )
@@ -160,13 +168,17 @@ function CodeBlock({ block }: { block: Block }) {
   if (lang === 'mermaid') return <MermaidCodeBlock text={text} />
 
   return (
-    <div className="island-shell my-4 overflow-x-auto rounded-xl p-4">
+    <div className="island-shell my-4 overflow-x-auto rounded-xl p-4 bg-gray-100!">
       {lang && (
         <p className="island-kicker mb-2">{lang}</p>
       )}
-      <pre className="text-sm leading-relaxed text-gray-800">
-        <code>{text}</code>
-      </pre>
+      <SyntaxHighlighter
+        language={lang || 'text'}
+        style={oneLight}
+        customStyle={{ margin: 0, background: 'transparent', fontSize: '0.875rem', lineHeight: '1.25rem' }}
+      >
+        {text}
+      </SyntaxHighlighter>
     </div>
   )
 }
