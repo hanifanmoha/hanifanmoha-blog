@@ -69,7 +69,7 @@ function HomePage() {
   const groups = groupByTags(posts)
 
   return (
-    <main className="page-wrap px-4 pb-16 pt-10">
+    <main className="page-wrap pb-16 pt-10">
       <section className="rise-in mb-10">
         <p className="island-kicker mb-2">Blog</p>
         <h1 className="display-title text-4xl font-bold text-gray-900 sm:text-5xl">

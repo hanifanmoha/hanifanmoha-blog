@@ -53,7 +53,7 @@ function PostPage() {
   })
 
   return (
-    <main className="page-wrap px-4 pb-16 pt-10">
+    <main className="page-wrap pb-16 pt-10">
       <div className="mx-auto max-w-2xl">
         <Link
           to="/"
